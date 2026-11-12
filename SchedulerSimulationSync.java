@@ -61,45 +61,77 @@ class SharedStats {
     static final java.util.concurrent.atomic.AtomicInteger busyWaitPolls = new java.util.concurrent.atomic.AtomicInteger(0);
 
     // TODO Feature 2: declare the lock(s) protecting the three shared variables above here.
+    private static final ReentrantLock statsLock = new ReentrantLock();
     // Think about it: ONE lock for the three variables, or ONE lock PER variable? (you must justify it in MY_WORK.md)
 
     public static void incrementContextSwitch() {
         // TODO Feature 2: protect this critical section
-        int tmp = contextSwitchCount;       // 1) read
-        RaceWindow.pause();                 //    <- another thread can read the SAME value here
-        contextSwitchCount = tmp + 1;       // 2) write  (one increment is lost if someone else did the same)
+        statsLock.lock();
+    try {
+        int tmp = contextSwitchCount;
+        RaceWindow.pause();
+        contextSwitchCount = tmp + 1;
+    } finally {
+        statsLock.unlock();
     }
+}
 
     public static void incrementCompletedProcess() {
         // TODO Feature 2: protect this critical section
+          statsLock.lock();
+    try {
         int tmp = completedProcessCount;
         RaceWindow.pause();
         completedProcessCount = tmp + 1;
+    } finally {
+        statsLock.unlock();
     }
+}
 
     public static void addServiceTime(int ms) {
         // TODO Feature 2: protect this critical section
+         statsLock.lock();
+    try {
         long tmp = totalServiceTime;
         RaceWindow.pause();
         totalServiceTime = tmp + ms;
+    } finally {
+        statsLock.unlock();
     }
+}
 
     // Readers must also be protected (a read in the middle of an update is not safe either)
     public static int getCompletedProcessCount() {
         // TODO Feature 2: protect this read
+        statsLock.lock();
+    try {
         return completedProcessCount;
+    } finally {
+        statsLock.unlock();
     }
+}
+    
 
     public static int getContextSwitchCount() {
         // TODO Feature 2: protect this read
+statsLock.lock();
+    try {
         return contextSwitchCount;
+    } finally {
+        statsLock.unlock();
     }
+}    
 
     public static long getTotalServiceTime() {
         // TODO Feature 2: protect this read
+statsLock.lock();
+    try {
         return totalServiceTime;
+    } finally {
+        statsLock.unlock();
     }
-}
+}    }
+
 
 // ⚠️ THE READY QUEUE: shared by ALL the CPU threads ⚠️
 // In Assignment 1 only the main thread used the queue. Now several CPUs poll and re-enqueue processes
@@ -181,6 +213,7 @@ class ReadyQueue {
     }
 }
 }
+
 // Class representing a process (same as Assignment 1) - executes ONE time quantum per thread start
 class Process implements Runnable {
     private final String name;
