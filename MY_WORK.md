@@ -34,7 +34,7 @@
 |-------|-------------|
 | **Full Name** | [haya ayed albagami] |
 | **Student ID** | [446051371] |
-| **University Email** | [446051371]@std.psau.edu.sa |
+| **University Email** | 446051371@std.psau.edu.sa |
 | **GitHub Username** | [ioykr] |
 | **Repository Link** | [https://github.com/ioykr/OS-Assignment3-haya-albagami] |
  
@@ -151,9 +151,9 @@ I examined the ReadyQueue methods and identified the need for synchronization us
 1 hour
 ---
 
-### Entry 2 - [11 november,8;00pm]]
+### Entry 2 - [11 november,8:00pm]
 **What I did**:
-mplemented Feature 1 – ReadyQueue synchronization.
+Implemented Feature 1– ReadyQueue synchronization.
 **Details**:
 Added a ReentrantLock named queueLock.
 
@@ -233,7 +233,7 @@ I needed to ensure that the program terminated correctly without exceptions or w
 **Solution**:
 I repeated the tests and checked the verification output after each run.
 **Time spent**:
-half hour
+30 minutes
 ---
 
 ### Entry 6 - [Optional - Date and Time]
@@ -253,14 +253,14 @@ half hour
 
 > 💡 **TIP:** Fill this in **last**, after all entries are written.
 
-**Total time spent on assignment**: [6 hours]
+**Total time spent on assignment**: [4.5 hours]
 
 **Most challenging part**:
 implementing Feature 3 using a counting semaphore. I needed to understand how CPUs could wait without busy waiting and how to wake them up when all processes were completed.
 **Most interesting learning**:
-I learned was how ReentrantLock prevents race conditions and how Semaphore allows threads to wait efficiently without wasting CPU resources.
+I learned how ReentrantLock prevents race conditions and how Semaphore allows threads to wait efficiently without wasting CPU resources.
 **What I would do differently next time**:
-study the synchronization concepts before starting the implementation. I would also test each feature immediately after completing it and review my code carefully before moving to the next feature.
+ I would study the synchronization concepts before starting the implementation. I would also test each feature immediately after completing it and review my code carefully before moving to the next feature.
 ---
 
 # Part B: Reflection (0.5 mark)
@@ -279,7 +279,7 @@ study the synchronization concepts before starting the implementation. I would a
 
 **Your Answer:** *(5-7 sentences)*
 
-[I learned that synchronization prevents problems when multiple CPUs access shared data. I learned that ReentrantLock protects shared data from race conditions. I used locks in Feature 1 and Feature 2 to protect the queue and statistics. In Feature 3, I used Semaphore to prevent busy waiting. This assignment helped me understand how to make concurrent programs safer and more reliable.]
+[I learned that synchronization is important when multiple threads access the same shared data. A race condition can happen when two threads read and update a value at nearly the same time, causing a lost update. A critical section is the part of the code that accesses shared data, and mutual exclusion allows only one thread at a time to enter it. In this assignment, I used ReentrantLock to protect the ReadyQueue and SharedStats data. I used try/finally so unlock() is called even if the method returns early or an exception occurs. I also learned that a counting Semaphore allows a CPU to wait using acquire() until a process becomes available instead of repeatedly checking the queue. The original starter surprised me because it produced NoSuchElementException in poll() and NullPointerException in snapshot().]
 
 ## Question 2: What was the most challenging part of this assignment?
 
@@ -287,7 +287,7 @@ study the synchronization concepts before starting the implementation. I would a
 
 **Your Answer:** *(5-7 sentences)*
 
-[The most challenging part was implementing Feature 3 using Semaphore. I found it difficult to understand how CPUs wait for available processes. I also needed to understand how to wake up blocked CPUs when all processes finished. I solved this by using acquire() and release(). After testing, the program worked correctly without busy waiting.]
+[The most challenging part was understanding how to use the counting Semaphore to stop busy waiting and shut down the CPUs. At first, I understood that add() should call release() and a CPU should call acquire() before taking a process. The difficult part was understanding what happens after the last process finishes. CPUs that are blocked in acquire() will not automatically wake up just because all processes are completed. I learned that release(totalCPUs) provides permits to wake up the waiting CPUs. After waking up, each CPU must check the completed process count and exit instead of trying to take another process.]
 
 ## Question 3: How did you overcome the challenges you faced?
 
@@ -295,7 +295,7 @@ study the synchronization concepts before starting the implementation. I would a
 
 **Your Answer:** *(5-7 sentences)*
 
-[I overcame the challenges by working step by step. I followed the assignment instructions and checked the code carefully. I fixed errors in each feature before moving to the next one. I also tested the program several times to check the results. Finally, I made sure all verification checks passed successfully.]
+[I overcame the challenges by following the assignment in small steps and checking one part at a time. I first ran the original starter with my student ID and saved the output. That run showed NullPointerException in ReadyQueue.snapshot() and NoSuchElementException in ReadyQueue.poll(), and the verification values were incorrect. I reviewed the affected methods and identified that the shared list and map needed mutual exclusion. I then protected the ReadyQueue methods with queueLock and used try/finally to release the lock safely. I also reviewed the statistics lock and semaphore logic against the README requirements before moving to the next feature.]
 
 ## Question 4: Where can synchronization concepts be applied in real-world applications?
 
@@ -303,7 +303,7 @@ study the synchronization concepts before starting the implementation. I would a
 
 **Your Answer:** *(5-7 sentences)*
 
-[Synchronization is used in many real-world applications. For example, banks use locks to protect shared account balances during transactions. Ticket booking systems use synchronization to prevent two people from booking the same seat. Databases use locks to protect shared data. These examples show why synchronization is important for preventing errors and keeping systems reliable.]
+[Synchronization is important in applications where several users or threads access the same data. In a banking system, a lock can protect an account balance so two withdrawals do not overwrite each other's updates. In ticket booking systems, synchronization can prevent two customers from reserving the same seat. Databases use locks to coordinate transactions that read or update shared records. A print queue can use a semaphore to notify a printer worker when a new job is available. These examples are similar to my scheduler because queueLock protects shared queue data and the semaphore controls when CPUs can continue working.]
 
 ### Optional: What would you like to learn more about?
 
@@ -337,29 +337,28 @@ study the synchronization concepts before starting the implementation. I would a
 
 **Your Answer:** *(3-5 sentences)*
 
-[The original program had race conditions because multiple CPUs accessed the shared ready queue at the same time. The expected context switches were 40, but the observed value was 0 because the program failed before completing any processes. For example, CPU-1 and CPU-2 may both read the same counter value before updating it. Because of RaceWindow.pause(), both CPUs may write the same new value, causing a lost update. This problem can also happen on real machines because thread execution timing is unpredictable.]
+[My original starter run did not complete a normal lost-update demonstration because the CPU threads failed first while accessing ReadyQueue. CPU-2, CPU-3, and CPU-4 threw NullPointerException in snapshot(), while CPU-1 threw NoSuchElementException in poll(); the verification showed expected values of 40, 19, and 159075 but observed 0 for all three. A possible lost update in SharedStats can happen when CPU-1 reads contextSwitchCount = 12, CPU-2 also reads 12, and both pause at RaceWindow.pause() before writing 13, although the correct result should be 14. The same problem can happen on a real machine without RaceWindow because the operating system may switch between threads after a read and before the corresponding write. It is difficult to detect because thread execution timing changes between runs, so the error may appear in some runs but not others.]
 
 Verification block of the **original starter**:
-```
-[Context switches     expected 40   observed 0   ✘ MISMATCH
-Completed processes  expected 19   observed 0   ✘ MISMATCH
-Total service time   expected 159075 observed 0  ✘ MISMATCH
-Busy-waiting polls   expected 0    observed 0    ✔
-✘ At least one check failed.]
-```
+═══ VERIFICATION (expected values are computed from YOUR seed) ═══
+Context switches (quanta executed) expected 40 observed 0 ✘ MISMATCH
+Completed processes expected 19 observed 0 ✘ MISMATCH
+Total service time (ms) expected 159075 observed 0 ✘ MISMATCH
+Busy-waiting polls (must be 0) expected 0 observed 0 ✔
+✘ At least one check failed (see the ✘ lines above): a race condition or busy waiting is still present.
 
 Verification block of **my final version**:
 ```
-[Context switches     expected 40    observed 40     ✔
-Completed processes  expected 19    observed 19     ✔
-Total service time   expected 159075 observed 159075 ✔
-Busy-waiting polls   expected 0     observed 0      ✔
-
-✔ All shared values are consistent.]
+═══ VERIFICATION (expected values are computed from YOUR seed) ═══
+Context switches (quanta executed)     expected 40       observed 40       ✔
+Completed processes                    expected 19       observed 19       ✔
+Total service time (ms)                expected 159075   observed 159075   ✔
+Busy-waiting polls (must be 0)         expected 0        observed 0        ✔
+✔ All shared values are consistent.
 ```
 
 **Explanation of the timeline:**
-[CPU-1 reads contextSwitchCount = 12. Before it updates the value, CPU-2 also reads 12. RaceWindow.pause() allows both CPUs to continue at different times. CPU-1 writes 13, then CPU-2 also writes 13. The correct value should be 14, but one update is lost because both CPUs accessed the shared variable without a lock.]
+[CPU-1 reads contextSwitchCount = 12. CPU-2 also reads 12 before either thread writes the updated value. Both threads execute RaceWindow.pause(), creating time for the interleaving. CPU-1 writes 13, and CPU-2 then also writes 13. The correct value should be 14, so one increment is lost.]
 
 ## Question 2: Critical Sections and Lock Granularity
 
@@ -369,7 +368,7 @@ Busy-waiting polls   expected 0     observed 0      ✔
 
 **Your Answer:** *(3-5 sentences)*
 
-[I protected the ReadyQueue methods using queueLock and the shared statistics using statsLock. I chose one lock for the three statistics because it is simpler to manage, but it may cause more waiting between independent operations. I used a separate lock for the queue because it protects different shared data. ReentrantLock provides mutual exclusion, and finally ensures that the lock is released. However, the default ReentrantLock is not fair, so bounded waiting is not guaranteed.]
+[I protected the ReadyQueue list and map in add(), poll(), processOf(), and snapshot() using queueLock. I protected the three SharedStats variables in all three update methods and all three getter methods using one statsLock. I chose one lock for the statistics because it is simpler to manage, but the trade-off is that operations on independent counters must wait for each other. I used a separate queueLock because the queue and statistics are different shared resources, reducing unnecessary blocking between unrelated operations. Each lock provides mutual exclusion, and after a thread releases the lock in finally, another waiting thread can proceed; however, the default non-fair ReentrantLock does not guarantee FIFO order or bounded waiting, so starvation is possible.]
 
 | Critical section (variable / method) | Lock used | Why it needs protection |
 ReadyQueue.add()	|queueLock	|Protects the queue when adding processes.
@@ -391,7 +390,7 @@ getTotalServiceTime()	|statsLock	|Protects reading the total service time.
 
 **Your Answer:** *(3-5 sentences)*
 
-[In the original program, CPUs used busy waiting by checking the empty queue, sleeping for 20 milliseconds, and checking again. My original run showed 0 busy-waiting polls because the CPU threads crashed before the polling was counted. My Semaphore represents the number of processes available in the ready queue, and its initial value is 0 because the queue is empty. After adding the initial 19 processes, its value becomes 19. When all processes finish, release(totalCPUs) wakes up the blocked CPUs; otherwise, they may remain blocked forever and the watchdog may stop the program.]
+[In the original starter, CPUs used busy waiting by repeatedly checking the ready queue and sleeping for 20 milliseconds when it was empty, which wastes CPU time. My original run showed 0 busy-waiting polls, but this does not mean busy waiting was solved because the CPU threads crashed before reaching the polling stage. The semaphore starts at 0 because no processes are available initially, and after the 19 initial add() calls its value becomes 19 because each call releases one permit. Each CPU uses acquire() to consume a permit when a process is available and blocks when no permit exists. When all processes finish, release(totalCPUs) wakes up the blocked CPUs so they can check the completion count and exit; otherwise, they may remain blocked forever.]
 
 ## Question 4: Classical Problems and Deadlock
 
@@ -400,16 +399,16 @@ getTotalServiceTime()	|statsLock	|Protects reading the total service time.
 > 💡 **TIP:** Recall the bounded-buffer solution of the slides (`empty`, `full`, `mutex`) and the order of `wait()` calls in the producer and the consumer. For the deadlock, think about a producer that holds the mutex while waiting for a free slot that only a consumer (who needs the mutex) can create.
 
 **Your Answer:** *(3-5 sentences)*
-This assignment is an example of the Producer-Consumer problem. The main thread produces processes, while CPUs consume them from the ready queue and re-add unfinished processes. For a bounded queue, we need three semaphores: empty = K, full = 0, and mutex = 1. Deadlock can happen if a producer holds the mutex while waiting for an empty slot, because the consumer cannot access the queue to remove a process. We can prevent this by waiting for an empty slot before acquiring the mutex, which breaks the hold-and-wait condition.
+This assignment is an example of the Producer-Consumer problem. The main thread is the initial producer, while the CPUs are consumers that take processes from the ready queue and also become producers when they re-add unfinished processes. If the ready queue has a capacity of K, we need three semaphores: empty = K, full = 0, and mutex = 1. Deadlock can happen if a producer holds the mutex while waiting for an empty slot because the consumer needs the same mutex to remove a process and create an empty slot. We can prevent this by waiting for the empty semaphore before acquiring the mutex, which breaks the hold-and-wait condition.
 **Classical problem and roles**:
 [Producer-Consumer problem.
-The main thread is the initial producer, and CPUs are consumers. CPUs also become producers when they re-add unfinished processes.]
+The main thread is the initial producer, and CPUs are consumers. CPUs also become producers when they re-add unfinished processes to the ready queue.]
 
 **Semaphores for a bounded queue (name and initial value)**:
-[empty	K full	0 mutex	1]
+[empty = K, full = 0, mutex = 1]
 
 **Deadlock scenario and prevention**:
-[A producer may hold the mutex while waiting for an empty slot. The consumer needs the same mutex to remove a process, so both threads become blocked. We prevent this by acquiring the empty semaphore before the mutex, breaking the hold-and-wait condition.]
+[A producer may acquire the mutex before waiting for an empty slot. If the queue is full, the consumer cannot acquire the mutex to remove a process and free a slot. We prevent this by waiting for the empty semaphore before acquiring the mutex, which breaks the hold-and-wait condition].
 
 ## Summary
 
